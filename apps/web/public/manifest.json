@@ -1,0 +1,16 @@
+{
+  "name": "TravelDoc — Medical Care Abroad",
+  "short_name": "TravelDoc",
+  "description": "Find nearby trusted doctors and clinics who speak your language with upfront pricing.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

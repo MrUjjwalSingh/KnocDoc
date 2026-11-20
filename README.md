@@ -1,178 +1,145 @@
-# TravelDoc (working title)
+# TravelDoc (Phase 1 Prototype)
 
-**Find a trusted, language-matched doctor with clear costs, in minutes, in any unfamiliar city.**
-
-> Status: Idea → Prototype planning
-> Category: Travel × Health-tech
+> **Find a trusted, language-matched doctor with clear costs, in minutes, in any unfamiliar city.**
+> A medical directory and connector for travelers. We do NOT diagnose, treat, or give medical advice.
 
 ---
 
-## 1. The Problem
-
-International travelers and domestic tourists from other states who fall ill in an unfamiliar city don't know:
-
-- **Which** hospital or clinic to trust
-- **Whether** the doctor speaks their language (or a common one like English)
-- **What** the treatment will cost before they walk in
-- **How far** the nearest suitable option is, and whether it is open right now
-
-Today they rely on hotel front desks, random Google Maps results, or insurance helplines. These are slow, inconsistent, and rarely show prices or verified language ability.
-
-## 2. The Idea
-
-An **Uber-style matching platform for medical care**. A traveler shares their location, preferred language, and a short description of what's wrong. The platform instantly returns a ranked list of **verified nearby doctors and clinics** with:
-
-- Verified languages spoken
-- Price range for common services
-- Distance and travel time
-- Open-now / walk-in availability
-- Ratings from verified visits
-
-One tap to call, WhatsApp, book, or get directions.
-
-> **We are a directory and connector, not a medical provider.** We do not diagnose, treat, or give medical advice.
-
-### How it differs from Uber
-
-Uber matches a rider to a driver who is live right now. Doctors aren't "online" in that way, so matching here is based on **clinic hours, walk-in availability, and appointment slots**, not live GPS tracking. Real-time request/accept flows are layered on later.
-
-## 3. Target Users
-
-| Actor | Who | What they need |
-|---|---|---|
-| **Traveler** | International tourists, out-of-state domestic tourists, business travelers | Fast, trustworthy, language-matched care with known costs |
-| **Provider** | Clinics, hospitals, independent doctors | Tourist patients, easy profile and price management |
-| **Admin** | Our ops team | Verification, moderation, monitoring |
-| **Partner** *(later)* | Hotels, hostels, tour operators, insurers | A guest-safety amenity or a local care network |
-
-## 4. Initial Prototype (MVP) Scope
-
-**Principle:** prove that travelers use it and providers keep it accurate, before building anything heavy.
-
-**Launch scope:** one city, English + 1-2 other languages, no payments.
-
-### 4.1 What we WILL build
-
-**Traveler PWA (mobile-first website)**
-- [ ] Location detection (GPS) with manual fallback
-- [ ] Language selection and need input (symptom category or short free text)
-- [ ] Ranked results list with map view
-- [ ] Provider profile: languages, specialties, price ranges, verification badge, hours
-- [ ] One-tap call / WhatsApp / directions
-- [ ] Post-visit rating and "actual amount paid" capture
-- [ ] Emergency banner with the local emergency number
-- [ ] Minimal sign-up (no login for first search, phone OTP only when needed)
-
-**Backend**
-- [ ] Provider, doctor, services/prices, languages, requests, and reviews data model
-- [ ] Geo-search (PostgreSQL + PostGIS)
-- [ ] **Rule-based matching engine** scoring on distance, language match, open-now, specialty fit, verification, and rating
-- [ ] REST API
-- [ ] Basic notification to providers (WhatsApp or SMS) on new requests
-
-**Provider side (lightweight)**
-- [ ] Simple dashboard or form to update hours, languages, doctors on duty, and prices
-- [ ] WhatsApp/form fallback for clinics that won't use a dashboard
-
-**Admin console (minimal)**
-- [ ] Provider onboarding and verification queue
-- [ ] Review moderation
-- [ ] Request monitoring, with manual reassignment
-
-**Supply (not code, but critical)**
-- [ ] 15-30 manually verified providers in the launch city
-- [ ] Verification checklist: registration check, language confirmation call, facility check, published price ranges
-
-### 4.2 What we will NOT build yet
-
-- Native mobile apps
-- Payments and insurance claims
-- Telemedicine
-- Ambulance / emergency dispatch
-- ML-based ranking
-- Multi-city tooling
-- Microservices
-
-### 4.3 Prototype success criteria
-
-| Metric | Target (initial) |
-|---|---|
-| Median time from request to a matched result | under 1 minute |
-| Providers who keep prices and hours updated | most of the network |
-| Quoted vs. actual price accuracy | high and improving |
-| Repeat or referral use | measurable from pilot partners |
-| Active distribution partners (hotels/hostels) | several promoting actively |
-
-## 5. Tech Stack (proposed)
-
-| Layer | Choice |
-|---|---|
-| Frontend | Next.js / React (PWA), Tailwind |
-| Backend | FastAPI (Python) or Node.js |
-| Database | PostgreSQL + PostGIS |
-| Cache / real-time (later) | Redis, WebSockets |
-| Maps | Google Maps Platform or Mapbox |
-| Messaging | WhatsApp Business API, Twilio, Firebase push |
-| Auth | Phone OTP (Firebase Auth / Auth0) |
-| AI (later) | LLM API for translation and symptom summaries |
-| Hosting | Vercel / AWS / GCP + managed Postgres |
-
-**Architecture:** a modular monolith. Split into services only when a part genuinely needs independent scaling.
-
-## 6. Roadmap
-
-| Phase | Focus | Timeline |
-|---|---|---|
-| 0 | Validate the problem (20-30 interviews, competitor map) | Weeks 1-3 |
-| 1 | Pick a narrow wedge (one city, one segment, one promise) | Weeks 3-5 |
-| 2 | Build the verified provider network | Weeks 4-8 |
-| 3 | Concierge MVP (WhatsApp + landing page) | Weeks 5-10 |
-| 4 | Prototype build and pilot with hotel/hostel partners | Weeks 8-16 |
-| 5 | Business model and early traction | Months 4-8 |
-| 6 | Choose the exit path | Months 6-12 |
-
-**Build order for the prototype:** data model → matching engine → traveler PWA → provider side → real-time requests → language layer → admin console → city beta.
-
-## 7. Business Model (to be tested)
-
-- **B2B subscription:** hotels and hostels offer it as a guest-safety amenity (test first)
-- **Insurer / assistance partnerships:** they need local verified networks
-- **Provider referral fees:** only where legal and ethical
-- **Premium traveler tier:** priority response and follow-up coordination
-
-## 8. End Goal
-
-The prototype exists to produce **proof and assets**, which support any of three outcomes:
-
-1. **Build it into a startup.** Raise pre-seed funding on traction, then expand city by city with a repeatable playbook.
-2. **Link it to a founder.** Hand over a package (pitch deck, validation report, pilot data, working prototype) for a co-founder or equity-based arrangement.
-3. **Sell it.** The valuable assets are the **verified provider network, price database, traction data, brand, and distribution partnerships**. Likely buyers: travel insurers and assistance companies, online travel agencies, hotel-tech platforms, health-tech platforms, hospital chains, and medical-tourism facilitators.
-
-## 9. Key Risks
-
-- **Liability and trust:** one bad referral damages credibility. Verification and clear disclaimers are essential.
-- **Regulation:** healthcare advertising and referral-fee rules vary by region. Get legal advice before taking commissions.
-- **Privacy:** health data is sensitive. Minimize collection, encrypt it, and comply with DPDP (India) and GDPR (EU travelers).
-- **Low-frequency use:** people need this rarely, so distribution via hotels, insurers, and partners matters more than direct marketing.
-- **Stale data:** prices and hours drift, so periodic re-verification is built into the workflow.
-
-## 10. Repository Structure (proposed)
+## 1. Architecture Overview
 
 ```
-/
-├── apps/
-│   ├── web/            # Traveler PWA
-│   └── admin/          # Admin console
-├── services/
-│   └── api/            # Backend (matching, providers, requests)
-├── db/
-│   └── migrations/     # Schema and PostGIS setup
-├── docs/
-│   ├── research/       # Interviews, competitor analysis
-│   └── verification/   # Provider verification checklist
-└── README.md
+                      ┌───────────────────────────────────────┐
+                      │    Mobile-First PWA (Next.js 14)      │
+                      │  Screen 1: Search (GPS/City Pick)     │
+                      │  Screen 2: Results (List + Leaflet)   │
+                      │  Screen 3: Profile + Feedback CTA     │
+                      └──────────────────┬────────────────────┘
+                                         │ JSON / REST
+                                         ▼
+                      ┌───────────────────────────────────────┐
+                      │         FastAPI Backend               │
+                      │  • GET /config (city, emergency #)    │
+                      │  • POST /search (matching engine)     │
+                      │  • GET /providers/{id} (full profile) │
+                      │  • POST /reviews (moderated feedback) │
+                      │  • POST /events (anonymous analytics) │
+                      │  • /admin (SQLAdmin auth portal)      │
+                      └──────────────────┬────────────────────┘
+                                         │ SQLAlchemy 2.0 (Async)
+                                         ▼
+                      ┌───────────────────────────────────────┐
+                      │     PostgreSQL 16 + PostGIS           │
+                      │  • providers (GiST location index)    │
+                      │  • doctors, specialties, languages    │
+                      │  • services & prices, reviews, events │
+                      └───────────────────────────────────────┘
 ```
 
-## 11. Disclaimer
+---
 
-This platform connects travelers with independent healthcare providers. It does **not** provide medical advice, diagnosis, or treatment. In a life-threatening emergency, call your local emergency number immediately.
+## 2. Quickstart (Under 5 Commands)
+
+```bash
+# 1. Copy environment variables
+cp .env.example .env
+
+# 2. Start services (PostgreSQL PostGIS + FastAPI + Next.js)
+docker compose up --build -d
+
+# 3. Apply database migrations
+docker compose exec api alembic upgrade head
+
+# 4. Seed dummy data (30 providers, 65+ doctors in Goa, India)
+docker compose exec api python -m db.seed --reset
+
+# 5. Open the app in your browser:
+#    - Web PWA:   http://localhost:3000
+#    - API Docs:  http://localhost:8000/docs
+#    - Admin:     http://localhost:8000/admin (User: admin / Pass: changeme)
+```
+
+---
+
+## 3. Matching Engine & Weight Tuning
+
+The rule-based matching engine scores providers from **0 to 100**:
+
+$$\text{Score} = 100 \times (0.30 \times \text{distance} + 0.25 \times \text{language} + 0.20 \times \text{open\_now} + 0.15 \times \text{specialty} + 0.05 \times \text{verification} + 0.05 \times \text{rating})$$
+
+| Component | Weight | Logic |
+|---|---|---|
+| **Distance** | 30% | $\max(0, 1 - \frac{\text{distance\_km}}{\text{max\_radius\_km}})$ via PostGIS `ST_DWithin` / `ST_Distance` |
+| **Language** | 25% | 1.0 if doctor speaks requested language, 0.7 if English fallback, 0.0 otherwise |
+| **Open Now** | 20% | 1.0 if open now (or 24x7), 0.5 if closed but walk-in available, 0.0 otherwise |
+| **Specialty** | 15% | 1.0 for mapped specialty, 0.5 for general physician fallback, 0.0 otherwise |
+| **Verification** | 5% | 1.0 for `verified`, 0.3 for `pending`, 0.0 for `rejected` |
+| **Rating** | 5% | Average approved review rating / 5.0 (default 0.5 if no ratings) |
+
+### Tuning Weights Without Code Changes
+All weights and need-to-specialty mappings are stored in:
+`services/api/app/matching/weights.yaml`
+
+Simply edit the numbers in `weights.yaml` and restart the API container:
+```bash
+docker compose restart api
+```
+
+---
+
+## 4. Replacing Dummy Data With Real Data
+
+All seeded dummy data has `is_dummy = true`. To import real data:
+
+1. Prepare your data in the CSV formats documented in [`docs/data-format.md`](docs/data-format.md).
+2. Run the CSV import tool:
+   ```bash
+   docker compose exec api python -m db.import_csv /app/db/seed/providers.csv
+   docker compose exec api python -m db.import_csv /app/db/seed/doctors.csv
+   docker compose exec api python -m db.import_csv /app/db/seed/services.csv
+   ```
+3. Remove the placeholder dummy records:
+   ```sql
+   DELETE FROM doctor_languages WHERE doctor_id IN (SELECT id FROM doctors WHERE is_dummy = true);
+   DELETE FROM services WHERE provider_id IN (SELECT id FROM providers WHERE is_dummy = true);
+   DELETE FROM reviews WHERE provider_id IN (SELECT id FROM providers WHERE is_dummy = true);
+   DELETE FROM doctors WHERE is_dummy = true;
+   DELETE FROM providers WHERE is_dummy = true;
+   ```
+4. Set `IS_DEMO_DATA=false` in `.env` and restart.
+
+---
+
+## 5. API Endpoints
+
+- `GET /health` — Health and version check
+- `GET /config` — City name, center coordinates, emergency phone, supported languages, and need categories
+- `POST /search` — Match and rank providers:
+  ```json
+  { "lat": 15.4909, "lng": 73.8278, "language_code": "ru", "need_category": "fever" }
+  ```
+- `GET /providers/{id}` — Full provider profile (doctors, schedules, price ranges, verification badge)
+- `POST /reviews` — Submit post-visit feedback (moderated as `pending`)
+- `POST /events` — Anonymous session event logging (`search_submitted`, `provider_opened`, `call_tapped`, etc.)
+- `GET /admin` — SQLAdmin management interface (basic auth)
+
+---
+
+## 6. Development & Testing
+
+```bash
+# Run backend pytest suite (matching engine + API validation)
+make test-api
+# or locally:
+$env:PYTHONPATH="services/api"; pytest -p no:deepeval services/api/tests/ -v
+
+# Run frontend vitest
+make test-web
+
+# Linting
+make lint
+```
+
+---
+
+## 7. License & Disclaimer
+This software is provided for directory connection purposes only. It is not intended to provide medical advice, diagnosis, or treatment.

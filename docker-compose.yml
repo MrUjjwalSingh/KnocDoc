@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: traveldoc_db
+    environment:
+      POSTGRES_DB: traveldoc
+      POSTGRES_USER: traveldoc
+      POSTGRES_PASSWORD: traveldoc
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U traveldoc -d traveldoc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: traveldoc_api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://traveldoc:traveldoc@db:5432/traveldoc
+      DATABASE_URL_SYNC: postgresql+psycopg2://traveldoc:traveldoc@db:5432/traveldoc
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      CITY_NAME: ${CITY_NAME:-Goa, India}
+      CITY_CENTER_LAT: ${CITY_CENTER_LAT:-15.4909}
+      CITY_CENTER_LNG: ${CITY_CENTER_LNG:-73.8278}
+      CITY_CURRENCY: ${CITY_CURRENCY:-INR}
+      CITY_EMERGENCY_NUMBER: ${CITY_EMERGENCY_NUMBER:-112}
+      IS_DEMO_DATA: ${IS_DEMO_DATA:-true}
+      MAX_RADIUS_KM: ${MAX_RADIUS_KM:-10}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./services/api:/app
+      - ./db:/app/db
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: traveldoc_web
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+
+volumes:
+  pgdata:

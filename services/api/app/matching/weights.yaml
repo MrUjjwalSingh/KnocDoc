@@ -1,0 +1,53 @@
+# TravelDoc Matching Engine — Tunable Weights & Configuration
+# Edit this file to adjust scoring without changing code.
+# Restart the API after changing.
+
+weights:
+  distance: 0.30
+  language: 0.25
+  open_now: 0.20
+  specialty: 0.15
+  verification: 0.05
+  rating: 0.05
+
+distance:
+  max_radius_km: 10
+
+rating:
+  default_when_no_reviews: 0.5
+
+# Maps need_category to specialty slugs (ordered by preference)
+need_to_specialty:
+  fever:
+    - general_physician
+  stomach_issue:
+    - gastroenterology
+    - general_physician
+  injury:
+    - orthopedic
+    - emergency_care
+  dental_pain:
+    - dental
+  skin_problem:
+    - dermatology
+    - general_physician
+  ear_nose_throat:
+    - ent
+    - general_physician
+  child_health:
+    - pediatrics
+    - general_physician
+  other:
+    - general_physician
+    - emergency_care
+
+# Human-readable labels for need categories (used in UI + match_reasons)
+need_labels:
+  fever: "Fever / Flu"
+  stomach_issue: "Stomach Issue"
+  injury: "Injury / Wound"
+  dental_pain: "Dental Pain"
+  skin_problem: "Skin Problem"
+  ear_nose_throat: "Ear, Nose & Throat"
+  child_health: "Child Health"
+  other: "General / Other"

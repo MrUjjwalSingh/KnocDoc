@@ -27,7 +27,7 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      CORS_ORIGINS: '${CORS_ORIGINS:-["http://localhost:3000"]}'
       CITY_NAME: ${CITY_NAME:-Goa, India}
       CITY_CENTER_LAT: ${CITY_CENTER_LAT:-15.4909}
       CITY_CENTER_LNG: ${CITY_CENTER_LNG:-73.8278}
@@ -52,6 +52,7 @@ services:
     container_name: traveldoc_web
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      API_INTERNAL_URL: http://api:8000
     ports:
       - "3000:3000"
     depends_on:

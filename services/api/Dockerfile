@@ -2,18 +2,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies (needed for psycopg2, GeoAlchemy2)
-RUN apt-get update && apt-get install -y \
-    gcc \
-    libpq-dev \
-    libgdal-dev \
-    && rm -rf /var/lib/apt/lists/*
+ENV PIP_DEFAULT_TIMEOUT=600 \
+    PIP_RETRIES=10
 
 # Copy application code and dependencies
 COPY . .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -e ".[dev]"
 
 # Add db package to path

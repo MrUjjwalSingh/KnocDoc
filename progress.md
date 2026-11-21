@@ -1,8 +1,8 @@
 # TravelDoc — Progress Report & Testing Guide
 
 > **Project:** TravelDoc (Phase 1 Prototype)  
-> **Status:** Phase 1 Complete (All Checkpoints 1 through 6 Delivered)  
-> **Date:** November 20, 2026
+> **Status:** Phase 1.1 Complete (Phase 1 fixes and Docker verification delivered)  
+> **Date:** November 22, 2026
 
 ---
 
@@ -18,6 +18,42 @@ All required scope items for Phase 1 have been implemented, tested, and verified
 | **Checkpoint 4: Screen 1 (Search) & Screen 2 (Results)** | ✅ Completed | Mobile-first Next.js 14 PWA with GPS auto-detection, fallback area dropdown, language selector, care need chips, ranked provider cards, and List / Leaflet Map toggle |
 | **Checkpoint 5: Screen 3 (Profile), Feedback & Admin** | ✅ Completed | Provider profile, opening hours with today highlighted, doctors and languages, upfront price table, sticky CTA bar (Call, WhatsApp, Directions), post-visit feedback modal, session analytics, and SQLAdmin interface |
 | **Checkpoint 6: PWA Polish & Documentation** | ✅ Completed | PWA `manifest.json`, Service Worker (`sw.js`), `/offline` fallback page, `Makefile`, `README.md`, and test suite passing |
+
+---
+
+## Phase 1.1 — Docker, Migration, and Frontend Fixes
+
+### Docker and dependency fixes
+
+- Removed unnecessary API OS build packages: `gcc`, `libpq-dev`, and `libgdal-dev`.
+- Removed the unused `shapely` dependency.
+- Pinned reproducible backend and development dependency versions in `services/api/pyproject.toml`.
+- Added pip timeout and retry settings to the API Dockerfile.
+- Rebuilt the API and web Docker images successfully.
+- Verified image sizes:
+  - API: approximately 104 MB
+  - Web: approximately 239 MB
+- Added `happy-dom` for frontend Vitest execution.
+- Added `apps/web/.dockerignore` to exclude host `node_modules` and `.next` artifacts.
+
+### Migration and configuration fixes
+
+- Corrected `CORS_ORIGINS` to use the JSON-list format required by Pydantic Settings.
+- Updated Docker Compose to pass the internal API hostname `http://api:8000` to server-rendered Next.js pages.
+- Fixed browser/server API URL selection in `apps/web/lib/api.ts`.
+- Fixed duplicate PostgreSQL enum creation in the initial Alembic migration.
+- Added a CommonJS-compatible PostCSS configuration for Next.js.
+
+### Verification completed
+
+- PostgreSQL/PostGIS, FastAPI, and Next.js containers are running.
+- Alembic migration state is `001 (head)`.
+- The `/health` endpoint returned `{"status":"ok","version":"0.1.0"}`.
+- Provider search returned 10 demo matches for the seeded Goa dataset.
+- A seeded provider profile loaded through both the API and frontend.
+- Homepage, results, offline, and provider-profile routes returned HTTP 200.
+- Backend tests: 36 passed.
+- Frontend tests: 1 passed.
 
 ---
 

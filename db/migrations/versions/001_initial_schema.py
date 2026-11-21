@@ -66,7 +66,17 @@ def upgrade() -> None:
         "providers",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column("name", sa.String(255), nullable=False),
-        sa.Column("type", sa.Enum("clinic", "hospital", "independent_doctor", name="provider_type"), nullable=False),
+        sa.Column(
+            "type",
+            postgresql.ENUM(
+                "clinic",
+                "hospital",
+                "independent_doctor",
+                name="provider_type",
+                create_type=False,
+            ),
+            nullable=False,
+        ),
         sa.Column("address", sa.Text, nullable=False),
         sa.Column("city", sa.String(100), nullable=False, server_default="Goa"),
         sa.Column(
@@ -81,7 +91,13 @@ def upgrade() -> None:
         sa.Column("registration_number", sa.String(100)),
         sa.Column(
             "verification_status",
-            sa.Enum("verified", "pending", "rejected", name="verification_status"),
+            postgresql.ENUM(
+                "verified",
+                "pending",
+                "rejected",
+                name="verification_status",
+                create_type=False,
+            ),
             nullable=False,
             server_default="pending",
         ),
@@ -122,7 +138,9 @@ def upgrade() -> None:
         sa.Column("language_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("languages.id", ondelete="CASCADE"), primary_key=True),
         sa.Column(
             "proficiency",
-            sa.Enum("basic", "fluent", "native", name="language_proficiency"),
+            postgresql.ENUM(
+                "basic", "fluent", "native", name="language_proficiency", create_type=False
+            ),
             nullable=False,
             server_default="fluent",
         ),
@@ -170,7 +188,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.Column(
             "status",
-            sa.Enum("pending", "approved", "hidden", name="review_status"),
+            postgresql.ENUM(
+                "pending", "approved", "hidden", name="review_status", create_type=False
+            ),
             nullable=False,
             server_default="pending",
         ),

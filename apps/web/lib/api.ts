@@ -2,9 +2,11 @@ import { AppConfig, ProviderDetail, SearchResponse } from "./types";
 import { getSessionId } from "./analytics";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_INTERNAL_BASE = process.env.API_INTERNAL_URL || API_BASE;
 
 export async function fetchConfig(): Promise<AppConfig> {
-  const res = await fetch(`${API_BASE}/config`, { next: { revalidate: 60 } });
+  const apiBase = typeof window === "undefined" ? API_INTERNAL_BASE : API_BASE;
+  const res = await fetch(`${apiBase}/config`, { next: { revalidate: 60 } });
   if (!res.ok) {
     // Fallback config if API is temporarily unavailable
     return {

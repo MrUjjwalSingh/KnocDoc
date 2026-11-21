@@ -9,12 +9,11 @@ RUN apt-get update && apt-get install -y \
     libgdal-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY pyproject.toml .
-RUN pip install --no-cache-dir -e ".[dev]"
-
-# Copy application code
+# Copy application code and dependencies
 COPY . .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -e ".[dev]"
 
 # Add db package to path
 ENV PYTHONPATH=/app

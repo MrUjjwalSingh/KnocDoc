@@ -186,3 +186,4 @@ When ready to transition from dummy data to production data:
    DELETE FROM providers WHERE is_dummy = true;
    ```
 4. Set `IS_DEMO_DATA=false` in `.env`.
+

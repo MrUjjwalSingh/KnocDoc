@@ -49,13 +49,31 @@ docker compose up --build -d
 # 3. Apply database migrations
 docker compose exec api alembic upgrade head
 
-# 4. Seed dummy data (30 providers, 65+ doctors in Goa, India)
+# 4. Seed dummy data (30 providers, 52 doctors in Goa, India)
 docker compose exec api python -m db.seed --reset
 
 # 5. Open the app in your browser:
 #    - Web PWA:   http://localhost:3000
 #    - API Docs:  http://localhost:8000/docs
 #    - Admin:     http://localhost:8000/admin (User: admin / Pass: changeme)
+```
+
+### Local Development (Without Docker)
+
+**Backend**
+```powershell
+cd services/api
+pip install -e ".[dev]"
+$env:PYTHONPATH="."
+pytest -p no:deepeval tests/ -v
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+**Frontend**
+```powershell
+cd apps/web
+npm install
+npm run dev
 ```
 
 ---
@@ -97,7 +115,7 @@ All seeded dummy data has `is_dummy = true`. To import real data:
    docker compose exec api python -m db.import_csv /app/db/seed/doctors.csv
    docker compose exec api python -m db.import_csv /app/db/seed/services.csv
    ```
-3. Remove the placeholder dummy records:
+3. Remove the placeholder dummy records and their dependent records:
    ```sql
    DELETE FROM doctor_languages WHERE doctor_id IN (SELECT id FROM doctors WHERE is_dummy = true);
    DELETE FROM services WHERE provider_id IN (SELECT id FROM providers WHERE is_dummy = true);
@@ -134,10 +152,30 @@ $env:PYTHONPATH="services/api"; pytest -p no:deepeval services/api/tests/ -v
 
 # Run frontend vitest
 make test-web
+# or locally:
+cd apps/web
+npm test
 
 # Linting
 make lint
 ```
+
+### Automated Test Coverage
+
+The backend suite covers matching-engine distance, language, opening-hours, specialty, verification, rating, and API validation rules. It also verifies weight totals and endpoint validation for invalid coordinates, need categories, reviews, and analytics events.
+
+### Manual End-to-End Walkthrough
+
+1. Open `http://localhost:3000` in a mobile-sized browser viewport.
+2. Confirm the emergency banner and demo-data disclaimer.
+3. Select a language and location, choose a care category, and submit **Find doctors near me**.
+4. Verify ranked cards, distance, open-now status, verification, price ranges, and match reasons.
+5. Toggle to Map View and open a provider pin.
+6. Open a provider profile and verify doctors, languages, opening hours, prices, call, WhatsApp, and directions actions.
+7. Submit feedback and confirm that the review is recorded as `pending`.
+8. Open `http://localhost:8000/admin` and verify provider, review, and analytics management.
+
+The frontend Vitest suite uses `happy-dom` for browser-like session testing.
 
 ---
 

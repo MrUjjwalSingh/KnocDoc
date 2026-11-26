@@ -28,12 +28,12 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
       CORS_ORIGINS: '${CORS_ORIGINS:-["http://localhost:3000"]}'
-      CITY_NAME: ${CITY_NAME:-Goa, India}
-      CITY_CENTER_LAT: ${CITY_CENTER_LAT:-15.4909}
-      CITY_CENTER_LNG: ${CITY_CENTER_LNG:-73.8278}
+      CITY_NAME: ${CITY_NAME:-Lucknow, India}
+      CITY_CENTER_LAT: ${CITY_CENTER_LAT:-26.8467}
+      CITY_CENTER_LNG: ${CITY_CENTER_LNG:-80.9462}
       CITY_CURRENCY: ${CITY_CURRENCY:-INR}
       CITY_EMERGENCY_NUMBER: ${CITY_EMERGENCY_NUMBER:-112}
-      IS_DEMO_DATA: ${IS_DEMO_DATA:-true}
+      IS_DEMO_DATA: ${IS_DEMO_DATA:-false}
       MAX_RADIUS_KM: ${MAX_RADIUS_KM:-10}
     ports:
       - "8000:8000"

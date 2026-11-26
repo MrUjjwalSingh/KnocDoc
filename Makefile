@@ -16,6 +16,10 @@ migrate:
 seed:
 	docker compose exec api python -m db.seed --reset
 
+# Seed real Lucknow providers & doctors
+seed-lucknow:
+	docker compose exec api python -m db.seed.lucknow --reset
+
 # Run backend tests
 test-api:
 	docker compose exec api pytest tests/ -v --tb=short

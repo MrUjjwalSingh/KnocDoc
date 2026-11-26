@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,8 +13,6 @@ from app.models.doctor import Doctor
 from app.models.language import DoctorLanguage
 from app.models.provider import Provider
 from app.models.review import Review
-from app.models.service import Service
-from app.models.specialty import Specialty
 from app.schemas import DoctorOut, ProviderDetail, ServiceOut
 
 router = APIRouter(tags=["providers"])
@@ -52,18 +51,20 @@ async def get_provider(
     )
     rating_res = await db.execute(rating_stmt)
     rating_row = rating_res.one_or_none()
-    avg_rating = float(rating_row.avg_rating) if rating_row and rating_row.avg_rating else None
-    review_count = int(rating_row.review_count) if rating_row and rating_row.review_count else 0
+    avg_rating = (
+        float(rating_row.avg_rating)
+        if rating_row and rating_row.avg_rating
+        else None
+    )
+    review_count = (
+        int(rating_row.review_count)
+        if rating_row and rating_row.review_count
+        else 0
+    )
 
     # Extract coordinates
-    lat, lng = 0.0, 0.0
-    try:
-        from geoalchemy2.shape import to_shape
-        point = to_shape(provider.location)
-        lat = point.y
-        lng = point.x
-    except Exception:
-        pass
+    from app.routers.search import extract_lat_lng
+    lat, lng = extract_lat_lng(provider.location)
 
     doctors_out = [DoctorOut.from_orm_with_languages(doc) for doc in provider.doctors]
     services_out = [ServiceOut.model_validate(s) for s in provider.services]

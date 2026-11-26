@@ -8,15 +8,18 @@ import { fetchConfig } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
 import { AppConfig, NeedCategory } from "@/lib/types";
 
-// Seeded popular areas in Goa for manual fallback
+// Seeded popular areas in Lucknow for manual fallback
 const POPULAR_AREAS = [
-  { name: "Panaji (Capital / Central)", lat: 15.4909, lng: 73.8278 },
-  { name: "Calangute (North Beach)", lat: 15.5440, lng: 73.7552 },
-  { name: "Baga Beach", lat: 15.5567, lng: 73.7523 },
-  { name: "Anjuna / Vagator", lat: 15.5742, lng: 73.7389 },
-  { name: "Mapusa (North Commercial)", lat: 15.5959, lng: 73.8138 },
-  { name: "Margao (South Hub)", lat: 15.2832, lng: 73.9862 },
-  { name: "Vasco da Gama (Airport / Port)", lat: 15.3982, lng: 73.8132 },
+  { name: "Hazratganj (Central Lucknow)", lat: 26.8555, lng: 80.9430 },
+  { name: "Gomti Nagar (East Hub)", lat: 26.8505, lng: 81.0095 },
+  { name: "Alambagh (South / Kanpur Rd)", lat: 26.8015, lng: 80.8950 },
+  { name: "Aliganj (North)", lat: 26.9052, lng: 80.9480 },
+  { name: "Indira Nagar", lat: 26.8833, lng: 80.9833 },
+  { name: "Mahanagar / Nirala Nagar", lat: 26.8775, lng: 80.9562 },
+  { name: "Chowk / KGMU (Old City)", lat: 26.8633, lng: 80.9033 },
+  { name: "Aminabad", lat: 26.8463, lng: 80.9263 },
+  { name: "Golf City / Shaheed Path (Medanta)", lat: 26.7773, lng: 80.9857 },
+  { name: "Raebareli Road (SGPGI)", lat: 26.7464, lng: 80.9361 },
 ];
 
 export default function SearchPage() {
@@ -176,7 +179,7 @@ export default function SearchPage() {
         <section className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Your Location in Goa
+              Your Location in {config?.city_name?.split(",")[0] || "Lucknow"}
             </span>
             <button
               type="button"

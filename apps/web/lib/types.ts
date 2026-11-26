@@ -90,9 +90,37 @@ export interface AppConfig {
   need_categories: NeedCategory[];
 }
 
+export interface ParsedSearchPreferences {
+  specialty?: string | null;
+  languages: string[];
+  language_mode?: "any" | "all";
+  location?: string | null;
+  radius_km?: number | null;
+  budget_max?: number | null;
+  budget_exact?: number | null;
+  min_experience_years?: number | null;
+  availability?: string;
+  verification_required?: boolean;
+  hard_constraints: string[];
+  preferences: string[];
+  ranking_profile: "balanced" | "nearest" | "budget_focused" | "experience_focused";
+  needs_clarification?: boolean;
+  clarification_reason?: string | null;
+  unanswerable?: boolean;
+  unanswerable_reason?: string | null;
+}
+
 export interface SearchResponse {
   search_request_id: string;
   results: ProviderSummary[];
   total: number;
+  parsed_preferences?: ParsedSearchPreferences | null;
+  applied_profile?: string;
+  limiting_constraints?: string[];
+  unsupported_constraints?: string[];
+  clarification_needed?: boolean;
+  clarification_message?: string | null;
+  unanswerable?: boolean;
+  unanswerable_message?: string | null;
 }
 

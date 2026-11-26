@@ -10,6 +10,46 @@ weights:
   verification: 0.05
   rating: 0.05
 
+# Preference-aware ranking profiles for natural-language search.
+# Note: Doctor experience_years is not present in the current DB schema, so
+# experience_focused emphasizes reliable quality signals (specialty, verification, rating).
+profiles:
+  balanced:
+    distance: 0.25
+    language: 0.25
+    open_now: 0.15
+    specialty: 0.15
+    cost: 0.10
+    verification: 0.05
+    rating: 0.05
+
+  nearest:
+    distance: 0.45
+    language: 0.20
+    open_now: 0.10
+    specialty: 0.10
+    cost: 0.05
+    verification: 0.05
+    rating: 0.05
+
+  budget_focused:
+    distance: 0.10
+    language: 0.20
+    open_now: 0.10
+    specialty: 0.10
+    cost: 0.40
+    verification: 0.05
+    rating: 0.05
+
+  experience_focused:
+    distance: 0.05
+    language: 0.20
+    open_now: 0.10
+    specialty: 0.25
+    cost: 0.05
+    verification: 0.20
+    rating: 0.15
+
 distance:
   max_radius_km: 10
 

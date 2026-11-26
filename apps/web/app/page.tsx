@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Navigation, Languages, Stethoscope, Search, RefreshCw } from "lucide-react";
+import { MapPin, Navigation, Languages, Stethoscope, Search, RefreshCw, Sparkles } from "lucide-react";
 import { NeedChips } from "@/components/NeedChips";
 import { fetchConfig } from "@/lib/api";
 import { trackEvent } from "@/lib/analytics";
@@ -28,6 +28,7 @@ export default function SearchPage() {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
   const [selectedNeed, setSelectedNeed] = useState<string>("fever");
+  const [nlQuery, setNlQuery] = useState<string>("");
 
   // Location state
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -105,6 +106,7 @@ export default function SearchPage() {
       lng: coords.lng,
       language_code: selectedLanguage,
       need_category: selectedNeed,
+      has_natural_language_query: Boolean(nlQuery.trim()),
     });
 
     const params = new URLSearchParams({
@@ -114,6 +116,9 @@ export default function SearchPage() {
       need: selectedNeed,
       label: locationLabel,
     });
+    if (nlQuery.trim()) {
+      params.set("q", nlQuery.trim());
+    }
 
     router.push(`/results?${params.toString()}`);
   }
@@ -218,7 +223,40 @@ export default function SearchPage() {
           </div>
         </section>
 
-        {/* Step 2: Need selector */}
+        {/* Step 2: Natural-language query */}
+        <section className="space-y-2">
+          <label htmlFor="nl-query" className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+            <Sparkles className="h-4 w-4 text-emerald-600" />
+            <span>Describe the doctor you want (optional)</span>
+          </label>
+          <textarea
+            id="nl-query"
+            rows={2}
+            value={nlQuery}
+            onChange={(e) => setNlQuery(e.target.value)}
+            maxLength={500}
+            placeholder='e.g. "Find a Hindi-speaking pediatrician within 5 km under ₹1,000 who is open now"'
+            className="w-full rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none shadow-sm resize-none"
+          />
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              "Affordable English-speaking doctor",
+              "Verified pediatrician within 5 km",
+              "Hindi or Konkani doctor open now",
+            ].map((example) => (
+              <button
+                key={example}
+                type="button"
+                onClick={() => setNlQuery(example)}
+                className="text-[11px] font-medium bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200 transition-colors"
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Step 3: Need selector */}
         <section className="space-y-2.5">
           <label className="block text-sm font-bold text-slate-900">
             What do you need care for?

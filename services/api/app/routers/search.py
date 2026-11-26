@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
 
-import pytz
 from fastapi import APIRouter, Depends, HTTPException
+
 try:
-    from geoalchemy2.functions import ST_DWithin, ST_Distance, ST_GeogFromText
+    from geoalchemy2.functions import ST_Distance, ST_DWithin, ST_GeogFromText
 except ImportError:
     def ST_DWithin(*args): return True
     def ST_Distance(*args): return 0
@@ -16,13 +15,11 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.config import get_settings
 from app.database import get_db
 from app.matching.engine import (
     build_match_reasons,
     compute_score,
     get_max_radius_km,
-    get_need_to_specialty,
 )
 from app.models.doctor import Doctor
 from app.models.language import DoctorLanguage, Language
@@ -30,8 +27,8 @@ from app.models.provider import Provider
 from app.models.review import Review
 from app.models.search_request import SearchRequest
 from app.models.service import Service
-from app.models.specialty import Specialty
-from app.schemas import ProviderSummary, SearchRequest as SearchRequestSchema, SearchResponse
+from app.schemas import ProviderSummary, SearchResponse
+from app.schemas import SearchRequest as SearchRequestSchema
 
 router = APIRouter(tags=["search"])
 
@@ -47,9 +44,11 @@ async def search_providers(
     db: AsyncSession = Depends(get_db),
 ) -> SearchResponse:
     if body.need_category not in VALID_NEED_CATEGORIES:
-        raise HTTPException(status_code=422, detail=f"Invalid need_category. Must be one of: {VALID_NEED_CATEGORIES}")
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid need_category. Must be one of: {VALID_NEED_CATEGORIES}",
+        )
 
-    settings = get_settings()
     max_radius_km = get_max_radius_km()
     # Convert km to metres for ST_DWithin (geography type uses metres)
     max_radius_m = max_radius_km * 1000
@@ -60,7 +59,9 @@ async def search_providers(
     stmt = (
         select(
             Provider,
-            ST_Distance(Provider.location, ST_GeogFromText(user_point)).label("distance_m"),
+            ST_Distance(Provider.location, ST_GeogFromText(user_point)).label(
+                "distance_m"
+            ),
         )
         .where(
             Provider.verification_status != "rejected",
@@ -94,17 +95,21 @@ async def search_providers(
             .group_by(Review.provider_id)
         )
         rating_result = await db.execute(rating_stmt)
-        ratings_map = {str(r.provider_id): (float(r.avg_rating), int(r.review_count)) for r in rating_result.all()}
+        ratings_map = {
+            str(r.provider_id): (float(r.avg_rating), int(r.review_count))
+            for r in rating_result.all()
+        }
     else:
         ratings_map = {}
 
     # --- Fetch language names for match_reasons ---
     lang_result = await db.execute(select(Language))
-    language_names = {l.code.lower(): l.name for l in lang_result.scalars().all()}
+    language_names = {
+        lang.code.lower(): lang.name for lang in lang_result.scalars().all()
+    }
 
     # --- Score each provider ---
     scored: list[tuple[float, ProviderSummary]] = []
-    settings_tz = "Asia/Kolkata"
 
     for row in rows:
         provider: Provider = row.Provider
@@ -144,7 +149,6 @@ async def search_providers(
         )
 
         # Build price range for the matched need
-        need_specialties = get_need_to_specialty(body.need_category)
         price_range = _get_price_range(provider.services, body.need_category)
 
         # Match reasons
@@ -158,6 +162,8 @@ async def search_providers(
 
         # Is open now?
         is_open = sub_scores["open_now"] == 1.0
+
+        lat, lng = extract_lat_lng(provider.location)
 
         summary = ProviderSummary(
             id=provider.id,
@@ -175,8 +181,8 @@ async def search_providers(
             average_rating=round(avg_rating, 1) if avg_rating else None,
             review_count=review_count,
             match_reasons=reasons,
-            lat=_extract_lat(provider.location),
-            lng=_extract_lng(provider.location),
+            lat=lat,
+            lng=lng,
         )
         scored.append((score, summary))
 
@@ -206,7 +212,14 @@ async def search_providers(
 
 
 SERVICE_TO_NEED: dict[str, list[str]] = {
-    "general_consultation": ["fever", "stomach_issue", "skin_problem", "ear_nose_throat", "child_health", "other"],
+    "general_consultation": [
+        "fever",
+        "stomach_issue",
+        "skin_problem",
+        "ear_nose_throat",
+        "child_health",
+        "other",
+    ],
     "fever_treatment": ["fever"],
     "stomach_issue_treatment": ["stomach_issue"],
     "stitches": ["injury"],
@@ -240,22 +253,24 @@ def _get_price_range(services: list[Service], need_category: str) -> str | None:
     return None
 
 
-def _extract_lat(location: object) -> float:
-    """Extract latitude from a WKBElement or similar."""
+def extract_lat_lng(location: object) -> tuple[float, float]:
+    """Extract (lat, lng) from a PostGIS WKBElement without requiring shapely."""
+    if location is None:
+        return 0.0, 0.0
     try:
         from geoalchemy2.shape import to_shape
         point = to_shape(location)
-        return point.y
+        return float(point.y), float(point.x)
     except Exception:
-        return 0.0
-
-
-def _extract_lng(location: object) -> float:
-    """Extract longitude from a WKBElement or similar."""
+        pass
     try:
-        from geoalchemy2.shape import to_shape
-        point = to_shape(location)
-        return point.x
+        import struct
+        raw = bytes(getattr(location, "data", location))
+        endian = "<" if raw[0] == 1 else ">"
+        geom_type = struct.unpack(f"{endian}I", raw[1:5])[0]
+        offset = 9 if (geom_type & 0x20000000) else 5
+        lng, lat = struct.unpack(f"{endian}dd", raw[offset : offset + 16])
+        return float(lat), float(lng)
     except Exception:
-        return 0.0
+        return 0.0, 0.0
 

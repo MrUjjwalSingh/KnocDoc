@@ -123,10 +123,11 @@ class ProviderDetail(BaseModel):
 
 # --- Search ---
 class SearchRequest(BaseModel):
-    lat: float = Field(..., ge=-90, le=90, description="Latitude")
-    lng: float = Field(..., ge=-180, le=180, description="Longitude")
-    language_code: str = Field(..., min_length=2, max_length=10)
-    need_category: str = Field(...)
+    lat: float | None = Field(default=None, ge=-90, le=90, description="Latitude")
+    lng: float | None = Field(default=None, ge=-180, le=180, description="Longitude")
+    language_code: str = Field(default="en", min_length=2, max_length=10)
+    need_category: str = Field(default="other")
+    query: str | None = Field(default=None, max_length=500, description="Natural-language search query")
     session_id: str | None = None
 
 
@@ -134,6 +135,14 @@ class SearchResponse(BaseModel):
     search_request_id: uuid.UUID
     results: list[ProviderSummary]
     total: int
+    parsed_preferences: dict[str, Any] | None = None
+    applied_profile: str = "balanced"
+    limiting_constraints: list[str] = Field(default_factory=list)
+    unsupported_constraints: list[str] = Field(default_factory=list)
+    clarification_needed: bool = False
+    clarification_message: str | None = None
+    unanswerable: bool = False
+    unanswerable_message: str | None = None
 
 
 # --- Reviews ---

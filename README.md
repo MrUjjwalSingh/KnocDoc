@@ -104,6 +104,39 @@ docker compose restart api
 
 ---
 
+## 3a. LLM-Powered Natural-Language Search (KnocDoc)
+
+KnocDoc supports natural-language doctor search on `POST /search` using OpenRouter (`nvidia/nemotron-3-ultra-550b-a55b:free` by default) while keeping filtering and ranking deterministic:
+
+```
+Natural-language query
+  → OpenRouter LLM parser (server-side, services/api/app/search/query_parser.py)
+  → Pydantic v2 validation & normalization (SearchPreferences, normalizer.py)
+  → PostgreSQL/PostGIS hard-constraint filtering (location radius, verification, specialty, languages, budget, availability)
+  → Deterministic preference ranking (balanced | nearest | budget_focused | experience_focused in weights.yaml)
+  → Ranked results + fact-grounded explanations
+```
+
+### OpenRouter Configuration (Server-Side Only)
+
+Add your OpenRouter key to `.env` (never expose it to `apps/web` or `/config`):
+```env
+LLM_SEARCH_ENABLED=true
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free
+```
+
+Restart the API container after updating `.env`:
+```bash
+docker compose restart api
+```
+
+### Known Schema & Data Limitations
+- `doctors` table does not currently include an `experience_years` column. Hard constraints on minimum years of experience are reported honestly as unsupported rather than silently ignored, and the `experience_focused` profile ranks using verified status, ratings, and specialty match.
+- `opening_hours` stores recurring weekly schedules and `24x7` flags, not future appointment slots (e.g., "tomorrow at 9:15 AM").
+
+---
+
 ## 4. Replacing Dummy Data With Real Data
 
 All seeded dummy data has `is_dummy = true`. To import real data:

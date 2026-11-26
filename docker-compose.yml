@@ -35,6 +35,9 @@ services:
       CITY_EMERGENCY_NUMBER: ${CITY_EMERGENCY_NUMBER:-112}
       IS_DEMO_DATA: ${IS_DEMO_DATA:-false}
       MAX_RADIUS_KM: ${MAX_RADIUS_KM:-10}
+      LLM_SEARCH_ENABLED: ${LLM_SEARCH_ENABLED:-true}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-nvidia/nemotron-3-ultra-550b-a55b:free}
     ports:
       - "8000:8000"
     depends_on:

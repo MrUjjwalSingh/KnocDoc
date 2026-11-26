@@ -19,7 +19,13 @@ class Settings(BaseSettings):
     secret_key: str = "dev-secret-key-change-in-production"
 
     # CORS
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: str | list[str] = "http://localhost:3000"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        if isinstance(self.cors_origins, list):
+            return self.cors_origins
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 
     # City config
     city_name: str = "Goa, India"
@@ -32,12 +38,13 @@ class Settings(BaseSettings):
     is_demo_data: bool = True
     max_radius_km: float = 10.0
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def parse_cors(cls, v: str | list[str]) -> list[str]:
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v
+    # OpenRouter / LLM search configuration
+    llm_search_enabled: bool = True
+    openrouter_api_key: str | None = None
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_model: str = "nvidia/nemotron-3-ultra-550b-a55b:free"
+    openrouter_timeout_seconds: float = 25.0
+    openrouter_max_retries: int = 2
 
     model_config = {"env_file": ".env", "case_sensitive": False, "extra": "ignore"}
 

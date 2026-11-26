@@ -44,7 +44,8 @@ export async function searchProviders(
   lat: number,
   lng: number,
   language_code: string,
-  need_category: string
+  need_category: string,
+  query?: string
 ): Promise<SearchResponse> {
   const sessionId = getSessionId();
   const res = await fetch(`${API_BASE}/search`, {
@@ -55,12 +56,24 @@ export async function searchProviders(
       lng,
       language_code,
       need_category,
+      ...(query ? { query } : {}),
       session_id: sessionId,
     }),
   });
 
   if (!res.ok) {
-    throw new Error(`Search failed: ${res.statusText}`);
+    let message = `Search failed: ${res.statusText}`;
+    try {
+      const errData = await res.json();
+      if (errData?.detail?.message) {
+        message = errData.detail.message;
+      } else if (typeof errData?.detail === "string") {
+        message = errData.detail;
+      }
+    } catch {
+      // keep default message
+    }
+    throw new Error(message);
   }
   return res.json();
 }
